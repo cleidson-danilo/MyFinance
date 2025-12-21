@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatórios - MyFinance</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/vendor/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col transition-transform -translate-x-full md:translate-x-0">
+            <div class="h-16 flex items-center justify-center border-b border-gray-100">
+                <h1 class="text-2xl font-bold text-primary"><i class="fa-solid fa-wallet mr-2"></i>MyFinance</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-chart-pie w-6"></i> Dashboard
+                </a>
+                <a href="transacoes.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-list w-6"></i> Transações
+                </a>
+                <a href="planejamento.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-bullseye w-6"></i> Planejamento
+                </a>
+                <a href="cartoes.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-credit-card w-6"></i> Cartões
+                </a>
+                <a href="relatorios.html" class="flex items-center px-4 py-3 bg-secondary text-primary font-semibold rounded-lg">
+                    <i class="fa-solid fa-chart-bar w-6"></i> Relatórios
+                </a>
+            </nav>
+            
+            <div class="p-4 border-t border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p id="user-name" class="text-sm font-bold">Usuário</p>
+                        <button id="open-config-btn" class="text-xs text-primary hover:underline">Configurações</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white border-b border-gray-100 px-4 sm:px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <button id="menu-toggle-btn" class="md:hidden text-gray-600 hover:text-primary mr-4">
+                            <i class="fa-solid fa-bars text-xl"></i>
+                        </button>
+                        <h1 class="text-2xl font-bold text-dark">Relatórios</h1>
+                    </div>
+                    <div class="flex items-center gap-2 sm:gap-4">
+                        <span class="hidden lg:inline text-sm text-gray-500" id="current-month"></span>
+                        <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white text-sm">
+                            <i class="fa-solid fa-table"></i>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-4 sm:p-6 lg:p-8">
+                <!-- Backup & Restore Section -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <h2 class="text-xl font-bold text-dark mb-4 flex items-center">
+                        <i class="fa-solid fa-download mr-2 text-primary"></i>
+                        Backup & Restore
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <!-- Exportar Dados -->
+                        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-100">
+                            <h3 class="font-semibold text-blue-800 mb-2">
+                                <i class="fa-solid fa-file-export mr-2"></i>Exportar Dados
+                            </h3>
+                            <p class="text-sm text-blue-600 mb-4">Faça backup de todas suas transações, cartões e orçamentos</p>
+                            
+                            <div class="space-y-3">
+                                <button id="export-json-btn" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-file-code"></i>
+                                    Exportar JSON
+                                </button>
+                                <button id="export-excel-btn" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-file-excel"></i>
+                                    Exportar Excel
+                                </button>
+                                <button id="export-pdf-btn" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-file-pdf"></i>
+                                    Exportar PDF
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Importar Dados -->
+                        <div class="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg border border-green-100">
+                            <h3 class="font-semibold text-green-800 mb-2">
+                                <i class="fa-solid fa-file-import mr-2"></i>Importar Dados
+                            </h3>
+                            <p class="text-sm text-green-600 mb-4">Restaure seus dados de outro computador ou backup</p>
+                            
+                            <div class="space-y-3">
+                                <input type="file" id="import-file-input" accept=".json" class="hidden">
+                                <button id="import-btn" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium flex items-center justify-center gap-2 transition-colors">
+                                    <i class="fa-solid fa-upload"></i>
+                                    Importar Arquivo
+                                </button>
+                                <div id="import-status" class="text-sm text-center hidden"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filtro de Período -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-4 mb-4 sm:mb-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+                        <label for="period-filter" class="font-semibold text-sm sm:text-base text-dark">Período:</label>
+                        <select id="period-filter" class="border border-gray-300 rounded-lg px-3 py-1.5 sm:px-4 sm:py-2 text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="all">Todos os períodos</option>
+                            <option value="current-month">Este mês</option>
+                            <option value="last-month">Mês anterior</option>
+                            <option value="last-3-months">Últimos 3 meses</option>
+                            <option value="last-6-months">Últimos 6 meses</option>
+                            <option value="last-year">Último ano</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Estatísticas Rápidas -->
+                <div class="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-4 sm:mb-6">
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-3 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-blue-100">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-xs sm:text-sm text-blue-600 font-medium">Total de Transações</p>
+                                <p class="text-lg sm:text-3xl font-bold text-dark" id="total-transactions">0</p>
+                            </div>
+                            <div class="bg-blue-600 p-2 sm:p-4 rounded-full">
+                                <i class="fa-solid fa-list text-white text-sm sm:text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-pink-50 to-pink-100 p-3 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-pink-100">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-xs sm:text-sm text-pink-600 font-medium">Cartões Ativos</p>
+                                <p class="text-lg sm:text-3xl font-bold text-dark" id="total-cards">0</p>
+                            </div>
+                            <div class="bg-pink-600 p-2 sm:p-4 rounded-full">
+                                <i class="fa-solid fa-credit-card text-white text-sm sm:text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-3 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-purple-100">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-xs sm:text-sm text-purple-600 font-medium">Metas Ativas</p>
+                                <p class="text-lg sm:text-3xl font-bold text-dark" id="total-budgets">0</p>
+                            </div>
+                            <div class="bg-purple-600 p-2 sm:p-4 rounded-full">
+                                <i class="fa-solid fa-bullseye text-white text-sm sm:text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 p-3 sm:p-6 rounded-lg sm:rounded-xl shadow-sm border border-green-100">
+                        <div class="flex items-center justify-between gap-2">
+                            <div>
+                                <p class="text-xs sm:text-sm text-green-600 font-medium">Última Transação</p>
+                                <p class="text-xs sm:text-sm font-semibold text-dark" id="last-transaction">-</p>
+                            </div>
+                            <div class="bg-green-600 p-2 sm:p-4 rounded-full">
+                                <i class="fa-solid fa-clock text-white text-sm sm:text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos de Relatório -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                    <!-- Gastos Mensais -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-bold text-dark mb-4">
+                            <i class="fa-solid fa-chart-line mr-2 text-primary"></i>
+                            Gastos dos Últimos 6 Meses
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="monthly-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Top Categorias -->
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                        <h3 class="text-lg font-bold text-dark mb-4">
+                            <i class="fa-solid fa-trophy mr-2 text-primary"></i>
+                            Top 5 Categorias de Gasto
+                        </h3>
+                        <div class="h-64">
+                            <canvas id="top-categories-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comparação Metas vs Realizado -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-6">
+                    <h3 class="text-lg font-bold text-dark mb-4">
+                        <i class="fa-solid fa-chart-pie mr-2 text-primary"></i>
+                        Metas Financeiras vs Realizado
+                    </h3>
+                    <div id="goals-comparison" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Metas serão renderizadas aqui -->
+                    </div>
+                </div>
+
+                <!-- Resumo Detalhado -->
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-3 sm:p-6 hidden md:block">
+                    <h3 class="text-sm sm:text-lg font-bold text-dark mb-4">
+                        <i class="fa-solid fa-table mr-2 text-primary"></i>
+                        Resumo Detalhado por Categoria
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs sm:text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200">
+                                    <th class="text-left py-2 sm:py-3 font-semibold text-dark">Categoria</th>
+                                    <th class="text-right py-2 sm:py-3 font-semibold text-dark">Total Gasto</th>
+                                    <th class="text-right py-2 sm:py-3 font-semibold text-dark">Transações</th>
+                                    <th class="text-right py-2 sm:py-3 font-semibold text-dark">Média</th>
+                                    <th class="text-right py-2 sm:py-3 font-semibold text-dark">% do Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="category-summary-table">
+                                <!-- Dados serão inseridos aqui via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="config-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-dark">Configurações</h3>
+                <button id="close-config-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="config-form">
+                <div class="space-y-4">
+                    <div>
+                        <label for="user-name-input" class="block text-sm font-medium text-gray-700 mb-1">Nome de Usuário</label>
+                        <input type="text" id="user-name-input" placeholder="Seu nome" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label for="app-color" class="block text-sm font-medium text-gray-700 mb-1">Cor do Tema</label>
+                        <select id="app-color" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="#db2777">Rosa (Padrão)</option>
+                            <option value="#3b82f6">Azul</option>
+                            <option value="#10b981">Verde</option>
+                            <option value="#f59e0b">Laranja</option>
+                            <option value="#8b5cf6">Roxo</option>
+                            <option value="#ef4444">Vermelho</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" id="cancel-config-btn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-primary hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow-sm font-medium">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Button Flutuante -->
+    <button id="help-btn" class="fixed bottom-6 right-6 w-12 h-12 bg-primary hover:bg-pink-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-40">
+        <i class="fa-solid fa-question text-lg"></i>
+    </button>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-dark">Sobre Relatórios</h3>
+                <button id="close-help-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm text-gray-700">
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📊 Estatísticas</h4>
+                    <p>Visualize o total de transações, cartões ativos, metas financeiras e a última transação registrada.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📥 Backup & Importação</h4>
+                    <p>Exporte seus dados em JSON, Excel ou PDF para backup seguro. Importe dados de outro dispositivo restaurando tudo com um clique.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📈 Gráficos</h4>
+                    <p>Acompanhe gastos dos últimos 6 meses, categorias mais gastas e compare metas vs realizações.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📋 Resumo Detalhado</h4>
+                    <p>Tabela completa mostrando total gasto, número de transações, média de gastos e percentual de cada categoria.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/relatorios.js"></script>
+    <script>
+        document.getElementById('help-btn').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.remove('hidden');
+        });
+        document.getElementById('close-help-btn').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.add('hidden');
+        });
+        document.getElementById('help-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'help-modal') {
+                document.getElementById('help-modal').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

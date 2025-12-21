@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planejamento - MyFinance</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col transition-transform -translate-x-full md:translate-x-0">
+            <div class="h-16 flex items-center justify-center border-b border-gray-100">
+                <h1 class="text-2xl font-bold text-primary"><i class="fa-solid fa-wallet mr-2"></i>MyFinance</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="index.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-chart-pie w-6"></i> Dashboard
+                </a>
+                <a href="transacoes.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-list w-6"></i> Transações
+                </a>
+                <a href="planejamento.html" class="flex items-center px-4 py-3 bg-secondary text-primary font-semibold rounded-lg">
+                    <i class="fa-solid fa-bullseye w-6"></i> Planejamento
+                </a>
+                <a href="cartoes.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-credit-card w-6"></i> Cartões
+                </a>
+                <a href="relatorios.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-chart-bar w-6"></i> Relatórios
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p id="user-name" class="text-sm font-bold">Usuário</p>
+                        <button id="open-config-btn" class="text-xs text-primary hover:underline">Configurações</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-8">
+            
+            <div class="md:hidden flex justify-between items-center mb-6">
+                <h1 class="text-xl font-bold text-primary"><i class="fa-solid fa-wallet mr-2"></i>MyFinance</h1>
+                <button id="menu-toggle-btn" class="text-gray-600"><i class="fa-solid fa-bars text-2xl"></i></button>
+            </div>
+
+            <header class="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-dark">Metas Financeiras</h2>
+                    <p class="text-gray-500">Controle gastos, economize dinheiro e quite dívidas</p>
+                </div>
+                <button id="add-budget-btn" class="bg-primary hover:bg-pink-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nova Meta
+                </button>
+            </header>
+
+            <div id="budget-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Orçamentos serão inseridos aqui -->
+                <!-- Exemplo de card de orçamento com categoria -->
+                <!--
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex flex-col gap-1 mb-2">
+                        <h3 class="font-bold text-lg text-dark">Moradia</h3>
+                        <span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-700">Moradia</span>
+                        <span class="text-sm font-medium text-gray-500">R$ 211.000,00</span>
+                    </div>
+                </div>
+                -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="config-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-dark">Configurações</h3>
+                <button id="close-config-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="config-form">
+                <div class="space-y-4">
+                    <div>
+                        <label for="user-name-input" class="block text-sm font-medium text-gray-700 mb-1">Nome de Usuário</label>
+                        <input type="text" id="user-name-input" placeholder="Seu nome" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label for="app-color" class="block text-sm font-medium text-gray-700 mb-1">Cor do Tema</label>
+                        <select id="app-color" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="#db2777">Rosa (Padrão)</option>
+                            <option value="#3b82f6">Azul</option>
+                            <option value="#10b981">Verde</option>
+                            <option value="#f59e0b">Laranja</option>
+                            <option value="#8b5cf6">Roxo</option>
+                            <option value="#ef4444">Vermelho</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" id="cancel-config-btn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-primary hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow-sm font-medium">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para adicionar meta -->
+    <div id="add-budget-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-dark">Criar Nova Meta</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="budget-form">
+                <div class="space-y-4">
+                    <div>
+                        <label for="budget-name" class="block text-sm font-medium text-gray-700 mb-1">Nome da Meta</label>
+                        <input type="text" id="budget-name" placeholder="Ex: Limite Alimentação, Casa Nova, Aposentadoria..." class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                    <div>
+                        <label for="budget-type" class="block text-sm font-medium text-gray-700 mb-1">Tipo de Meta</label>
+                        <select id="budget-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            <option value="expense_limit">Limite de Gastos - Controlar quanto gasto em uma categoria</option>
+                            <option value="savings">Economia - Quanto quero economizar</option>
+                            <option value="investment">Investimento - Quanto quero investir</option>
+                            <option value="debt_payment">Pagamento de Dívida - Quanto preciso pagar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="budget-category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select id="budget-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Seguro">Seguro</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Educação">Educação</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Salário">Salário</option>
+                            <option value="Investimento">Investimento</option>
+                            <option value="Beleza">Beleza</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="budget-amount" class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                        <input type="number" id="budget-amount" step="0.01" placeholder="R$ 0,00" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end">
+                    <button type="submit" class="bg-primary hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow-sm transition-colors font-medium">
+                        Criar Meta
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para editar meta -->
+    <div id="edit-budget-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-dark">Editar Meta</h3>
+                <button class="close-modal-btn text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="edit-budget-form">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nome da Meta</label>
+                        <input type="text" name="name" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Meta</label>
+                        <select name="type" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <option value="expense_limit">Limite de Gastos - Controlar quanto gasto em uma categoria</option>
+                            <option value="savings">Economia - Quanto quero economizar</option>
+                            <option value="investment">Investimento - Quanto quero investir</option>
+                            <option value="debt_payment">Pagamento de Dívida - Quanto preciso pagar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select name="category" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Seguro">Seguro</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Educação">Educação</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Salário">Salário</option>
+                            <option value="Investimento">Investimento</option>
+                            <option value="Beleza">Beleza</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                        <input type="number" name="amount" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2" required>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end">
+                    <button type="submit" class="bg-primary hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow-sm font-medium">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Button Flutuante -->
+    <button id="help-btn" class="fixed bottom-6 right-6 w-12 h-12 bg-primary hover:bg-pink-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-40">
+        <i class="fa-solid fa-question text-lg"></i>
+    </button>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-dark">Sobre Planejamento</h3>
+                <button id="close-help-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm text-gray-700">
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">🎯 Metas Financeiras</h4>
+                    <p>Crie metas para controlar gastos, economizar, investir ou quitar dívidas. Cada meta pode ser associada a uma categoria.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">➕ Nova Meta</h4>
+                    <p>Adicione uma meta clicando no botão. Escolha o tipo (limite de gastos, economia, investimento, dívida), categoria e valor desejado.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">✏️ Editar/Excluir</h4>
+                    <p>Edite ou exclua metas existentes para manter seu planejamento sempre atualizado.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📊 Acompanhamento</h4>
+                    <p>Acompanhe o progresso de cada meta e veja quanto falta para atingir seus objetivos financeiros.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+        document.getElementById('help-btn').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.remove('hidden');
+        });
+        document.getElementById('close-help-btn').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.add('hidden');
+        });
+        document.getElementById('help-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'help-modal') {
+                document.getElementById('help-modal').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

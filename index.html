@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finanças Pessoais - Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/vendor/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 text-slate-800 font-sans antialiased">
+
+    <!-- Modal para adicionar transação -->
+    <div id="add-transaction-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-dark">Adicionar Transação</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="transaction-form">
+                <div class="space-y-4">
+                    <div>
+                        <label for="transaction-name" class="block text-sm font-medium text-gray-700 mb-1">Nome</label>
+                        <input type="text" id="transaction-name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                    <div>
+                        <label for="transaction-amount" class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                        <input type="number" id="transaction-amount" step="0.01" placeholder="R$ 0,00" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                    <div>
+                        <label for="transaction-type" class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                        <select id="transaction-type" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="outcome">Saída</option>
+                            <option value="income">Entrada</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="transaction-category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+                        <select id="transaction-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                                                        <option value="Seguro">Seguro</option>
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Educação">Educação</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Salário">Salário</option>
+                            <option value="Investimento">Investimento</option>
+                            <option value="Beleza">Beleza</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="transaction-date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+                        <input type="date" id="transaction-date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end">
+                    <button type="submit" class="bg-primary hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow-sm transition-colors font-medium">
+                        Salvar Transação
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="flex h-screen overflow-hidden">
+
+        <aside id="sidebar" class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col transition-transform -translate-x-full md:translate-x-0">
+            <div class="h-16 flex items-center justify-center border-b border-gray-100">
+                <h1 class="text-2xl font-bold text-primary"><i class="fa-solid fa-wallet mr-2"></i>MyFinance</h1>
+            </div>
+            
+            <nav class="flex-1 px-4 py-6 space-y-2">
+                <a href="index.html" class="flex items-center px-4 py-3 bg-secondary text-primary font-semibold rounded-lg">
+                    <i class="fa-solid fa-chart-pie w-6"></i> Dashboard
+                </a>
+                <a href="transacoes.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-list w-6"></i> Transações
+                </a>
+                <a href="planejamento.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-bullseye w-6"></i> Planejamento
+                </a>
+                <a href="cartoes.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-credit-card w-6"></i> Cartões
+                </a>
+                <a href="relatorios.html" class="flex items-center px-4 py-3 text-gray-600 hover:bg-gray-50 hover:text-primary rounded-lg transition-colors">
+                    <i class="fa-solid fa-chart-bar w-6"></i> Relatórios
+                </a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-gray-500"></i>
+                    </div>
+                    <div>
+                        <p id="user-name" class="text-sm font-bold">Usuário</p>
+                        <button id="open-config-btn" class="text-xs text-primary hover:underline">Configurações</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="flex-1 overflow-y-auto bg-gray-50 p-4 sm:p-8">
+            
+            <div class="md:hidden flex justify-between items-center mb-6">
+                <h1 class="text-xl font-bold text-primary"><i class="fa-solid fa-wallet mr-2"></i>MyFinance</h1>
+                <button id="menu-toggle-btn" class="text-gray-600"><i class="fa-solid fa-bars text-2xl"></i></button>
+            </div>
+
+            <header class="flex flex-col sm:flex-row justify-between sm:items-end gap-4 mb-8">
+                <div>
+                    <h2 class="text-2xl font-bold text-dark">Visão Geral</h2>
+                    <p class="text-gray-500">Resumo financeiro de <span id="current-month" class="font-semibold text-primary"></span></p>
+                </div>
+                <button id="add-expense-btn" class="bg-primary hover:bg-pink-700 text-white px-4 py-2 rounded-lg shadow-sm transition-colors text-sm font-medium flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Nova Transação
+                </button>
+            </header>
+
+            <section class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Entradas</p>
+                            <h3 id="total-income" class="text-2xl font-bold text-green-600">R$ 0,00</h3>
+                        </div>
+                        <div class="p-2 bg-green-50 rounded-lg text-green-600">
+                            <i class="fa-solid fa-arrow-up"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Saídas</p>
+                            <h3 id="total-outcome" class="text-2xl font-bold text-red-500">R$ 0,00</h3>
+                        </div>
+                        <div class="p-2 bg-red-50 rounded-lg text-red-500">
+                            <i class="fa-solid fa-arrow-down"></i>
+                        </div>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-1.5 mt-2">
+                        <div id="outcome-progress-bar" class="bg-red-500 h-1.5 rounded-full" style="width: 0%"></div>
+                    </div>
+                    <p id="outcome-percentage" class="text-xs text-gray-400 mt-2">0% da renda comprometida</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500 font-medium">Saldo Previsto</p>
+                            <h3 id="balance" class="text-2xl font-bold text-blue-600">R$ 0,00</h3>
+                        </div>
+                        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-dark">Últimas Transações</h3>
+                        <a href="transacoes.html" class="text-sm text-primary font-medium hover:underline">Ver tudo</a>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="text-xs text-gray-500 uppercase border-b border-gray-100">
+                                    <th class="pb-3 font-semibold">Nome</th>
+                                    <th class="pb-3 font-semibold">Categoria</th>
+                                    <th class="pb-3 font-semibold">Data</th>
+                                    <th class="pb-3 font-semibold">Status</th>
+                                    <th class="pb-3 font-semibold text-right">Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transaction-list" class="text-sm">
+                                <!-- As transações serão inseridas aqui via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <h3 class="font-bold text-lg text-dark mb-6">Orçamento por Categoria</h3>
+                    
+                    <div class="h-64 w-full mx-auto mb-6">
+                        <canvas id="category-chart"></canvas>
+                    </div>
+                    
+                    <button class="w-full mt-2 py-2 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 transition-colors">
+                        Gerenciar Orçamentos
+                    </button>
+                </div>
+                <div class="lg:col-span-3 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="font-bold text-lg text-dark">Meus Cartões de Crédito</h3>
+                        <a href="cartoes.html" class="text-sm text-primary font-medium hover:underline flex items-center gap-1">
+                            Ver todos <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                    </div>
+                    
+                    <div id="dashboard-card-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Os cartões serão inseridos aqui via JS -->
+                    </div>
+                    
+                    <button onclick="window.location.href='cartoes.html'" class="w-full mt-6 py-3 border-2 border-dashed border-gray-200 rounded-lg text-sm font-medium text-primary hover:bg-secondary hover:border-primary transition-colors flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-plus"></i> Adicionar Novo Cartão
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal de Configurações -->
+    <div id="config-modal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-dark">Configurações</h3>
+                <button id="close-config-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <form id="config-form">
+                <div class="space-y-4">
+                    <div>
+                        <label for="user-name-input" class="block text-sm font-medium text-gray-700 mb-1">Nome de Usuário</label>
+                        <input type="text" id="user-name-input" placeholder="Seu nome" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <div>
+                        <label for="app-color" class="block text-sm font-medium text-gray-700 mb-1">Cor do Tema</label>
+                        <select id="app-color" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
+                            <option value="#db2777">Rosa (Padrão)</option>
+                            <option value="#3b82f6">Azul</option>
+                            <option value="#10b981">Verde</option>
+                            <option value="#f59e0b">Laranja</option>
+                            <option value="#8b5cf6">Roxo</option>
+                            <option value="#ef4444">Vermelho</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-8 flex justify-end gap-3">
+                    <button type="button" id="cancel-config-btn" class="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+                        Cancelar
+                    </button>
+                    <button type="submit" class="bg-primary hover:bg-pink-700 text-white px-6 py-2 rounded-lg shadow-sm font-medium">
+                        Salvar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Help Button Flutuante -->
+    <button id="help-btn" class="fixed bottom-6 right-6 w-12 h-12 bg-primary hover:bg-pink-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-110 z-40">
+        <i class="fa-solid fa-question text-lg"></i>
+    </button>
+
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md mx-4 max-h-96 overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-dark">Sobre Dashboard</h3>
+                <button id="close-help-btn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div class="space-y-4 text-sm text-gray-700">
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">💰 Resumo Financeiro</h4>
+                    <p>Veja suas entradas, saídas e saldo previsto do mês. A barra de progresso mostra quanto da sua renda está comprometida.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📊 Orçamento por Categoria</h4>
+                    <p>Gráfico de rosca mostrando como seu dinheiro é distribuído entre as diferentes categorias de gastos.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">📝 Últimas Transações</h4>
+                    <p>Visualize suas movimentações mais recentes. Clique em "Ver tudo" para acessar a lista completa.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-primary mb-1">💳 Meus Cartões</h4>
+                    <p>Acompanhe o uso de cada cartão de crédito e quanto ainda tem disponível de limite.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/config.js"></script>
+    <script>
+        document.getElementById('help-btn').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.remove('hidden');
+        });
+        document.getElementById('close-help-btn').addEventListener('click', () => {
+            document.getElementById('help-modal').classList.add('hidden');
+        });
+        document.getElementById('help-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'help-modal') {
+                document.getElementById('help-modal').classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>

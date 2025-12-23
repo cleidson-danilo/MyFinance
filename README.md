@@ -55,6 +55,14 @@ O site MyFinance oferece controle total das finanças pessoais, com automação,
 - Navegue pelo `Dashboard` e pelas páginas em `paginas/`:
 	- `Transações`, `Planejamento`, `Cartões`, `Relatórios`
 
+## 🖼️ Prévia
+
+> Imagens ilustrativas do Dashboard. Substitua pelos seus arquivos em `docs/`.
+
+![Dashboard (Desktop)](docs/preview-desktop.png)
+
+![Dashboard (Mobile)](docs/preview-mobile.png)
+
 ## 📦 Exportação e Importação de Dados
 - Exportar JSON: baixa um arquivo com todas as transações, cartões e metas.
 - Exportar Excel: gera um `.xlsx` com abas estilizadas (Resumo, Transações, Por Categoria, Metas, Cartões).
@@ -98,6 +106,8 @@ js/
 	└── vendor/
 			└── chart.umd.min.js
 ```
+
+		> Para atualizar as imagens da prévia do README, adicione `docs/preview-desktop.png` e `docs/preview-mobile.png`. Consulte `docs/README_IMAGES.md` para instruções rápidas.
 
 ## 🔧 Dicas e Solução de Problemas
 - Se o site publicado não refletir mudanças de estilo, force atualização: `Ctrl+F5`.

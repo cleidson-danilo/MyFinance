@@ -417,7 +417,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="col-span-3 text-center text-gray-400 py-10">
                         <i class="fa-solid fa-credit-card text-4xl mb-4"></i>
                         <p>Nenhum cartão cadastrado ainda.</p>
-                        <a href="cartoes.html" class="text-primary hover:underline">Adicionar primeiro cartão</a>
+                        <a href="paginas/cartoes.html" class="text-primary hover:underline">Adicionar primeiro cartão</a>
                     </div>
                 `;
             } else {

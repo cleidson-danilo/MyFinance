@@ -17,16 +17,29 @@ const getConfigSync = () => {
     }
 };
 
-// Aplicar cores imediatamente
+// Aplicar cores imediatamente (incluindo ring-primary dinâmico)
 const applyColorsSync = (color) => {
+    const old = document.getElementById('instant-colors');
+    if (old) old.remove();
+    
     const style = document.createElement('style');
     style.id = 'instant-colors';
     style.innerHTML = `
         .text-primary { color: ${color} !important; }
         .bg-primary { background-color: ${color} !important; }
         .border-primary { border-color: ${color} !important; }
+        .ring-primary { --tw-ring-color: ${color} !important; }
         .hover\\:bg-pink-700:hover,
         .hover\\:bg-primary:hover { background-color: ${color} !important; }
+        
+        /* Focus dinâmico para inputs */
+        input:focus,
+        select:focus,
+        textarea:focus,
+        button:focus {
+            outline: none !important;
+            box-shadow: 0 0 0 3px rgba(219, 39, 119, 0.1), 0 0 0 2px ${color} !important;
+        }
     `;
     document.head.appendChild(style);
 };
@@ -92,6 +105,43 @@ const applyThemeSync = (mode) => {
             /* Buttons e elementos secundários */
             .dark .text-gray-500 { color: #9ca3af !important; }
             .dark .text-gray-400 { color: #9ca3af !important; }
+
+            /* Cards de cartão */
+            .dark .bg-gradient-to-br { background: linear-gradient(135deg, #1a2332 0%, #0f172a 100%) !important; }
+            .dark .from-pink-100 { --tw-gradient-from: #1a2332 !important; }
+            .dark .to-blue-100 { --tw-gradient-to: #0f172a !important; }
+            .dark .border-gray-200 { border-color: #2d3748 !important; }
+
+            /* Cards de estatísticas */
+            .dark .bg-blue-50,
+            .dark .bg-pink-50,
+            .dark .bg-purple-50,
+            .dark .bg-green-50 { 
+                background-color: #1a2332 !important; 
+                border-color: #2d3748 !important;
+            }
+
+            .dark .text-blue-800,
+            .dark .text-pink-800,
+            .dark .text-purple-800,
+            .dark .text-green-800,
+            .dark .text-blue-700,
+            .dark .text-pink-700,
+            .dark .text-purple-700,
+            .dark .text-green-700,
+            .dark .text-blue-600,
+            .dark .text-pink-600,
+            .dark .text-purple-600,
+            .dark .text-green-600 {
+                color: #e5e7eb !important;
+            }
+
+            .dark .text-blue-500,
+            .dark .text-pink-500,
+            .dark .text-purple-500,
+            .dark .text-green-500 {
+                color: #d1d5db !important;
+            }
         `;
         document.head.appendChild(style);
     } else {

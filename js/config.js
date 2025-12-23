@@ -184,22 +184,45 @@ const applyThemeSync = (mode) => {
             .dark .bg-teal-100.text-teal-700,
             .dark .bg-orange-100.text-orange-700,
             .dark .bg-fuchsia-100.text-fuchsia-700,
-            .dark .bg-gray-100.text-gray-700 {
+            .dark .bg-gray-100.text-gray-700,
+            /* Variantes -50 das tags de categoria (relatorios.html) */
+            .dark .bg-green-50.text-green-700,
+            .dark .bg-blue-50.text-blue-700,
+            .dark .bg-red-50.text-red-700,
+            .dark .bg-purple-50.text-purple-700,
+            .dark .bg-indigo-50.text-indigo-700,
+            .dark .bg-yellow-50.text-yellow-700,
+            .dark .bg-pink-50.text-pink-700,
+            .dark .bg-teal-50.text-teal-700,
+            .dark .bg-orange-50.text-orange-700,
+            .dark .bg-fuchsia-50.text-fuchsia-700,
+            .dark .bg-gray-50.text-gray-700 {
                 background-color: rgba(30, 41, 59, 0.8) !important;
                 border: 1px solid #334155 !important;
             }
 
-            .dark .bg-green-100.text-green-700 { color: #86efac !important; }
-            .dark .bg-blue-100.text-blue-700 { color: #93c5fd !important; }
-            .dark .bg-red-100.text-red-700 { color: #fca5a5 !important; }
-            .dark .bg-purple-100.text-purple-700 { color: #d8b4fe !important; }
-            .dark .bg-indigo-100.text-indigo-700 { color: #a5b4fc !important; }
-            .dark .bg-yellow-100.text-yellow-700 { color: #fcd34d !important; }
-            .dark .bg-pink-100.text-pink-700 { color: #fbcfe8 !important; }
-            .dark .bg-teal-100.text-teal-700 { color: #7ee8c4 !important; }
-            .dark .bg-orange-100.text-orange-700 { color: #fed7aa !important; }
-            .dark .bg-fuchsia-100.text-fuchsia-700 { color: #f0d9ff !important; }
-            .dark .bg-gray-100.text-gray-700 { color: #d1d5db !important; }
+            .dark .bg-green-100.text-green-700,
+            .dark .bg-green-50.text-green-700 { color: #86efac !important; }
+            .dark .bg-blue-100.text-blue-700,
+            .dark .bg-blue-50.text-blue-700 { color: #93c5fd !important; }
+            .dark .bg-red-100.text-red-700,
+            .dark .bg-red-50.text-red-700 { color: #fca5a5 !important; }
+            .dark .bg-purple-100.text-purple-700,
+            .dark .bg-purple-50.text-purple-700 { color: #d8b4fe !important; }
+            .dark .bg-indigo-100.text-indigo-700,
+            .dark .bg-indigo-50.text-indigo-700 { color: #a5b4fc !important; }
+            .dark .bg-yellow-100.text-yellow-700,
+            .dark .bg-yellow-50.text-yellow-700 { color: #fcd34d !important; }
+            .dark .bg-pink-100.text-pink-700,
+            .dark .bg-pink-50.text-pink-700 { color: #fbcfe8 !important; }
+            .dark .bg-teal-100.text-teal-700,
+            .dark .bg-teal-50.text-teal-700 { color: #7ee8c4 !important; }
+            .dark .bg-orange-100.text-orange-700,
+            .dark .bg-orange-50.text-orange-700 { color: #fed7aa !important; }
+            .dark .bg-fuchsia-100.text-fuchsia-700,
+            .dark .bg-fuchsia-50.text-fuchsia-700 { color: #f0d9ff !important; }
+            .dark .bg-gray-100.text-gray-700,
+            .dark .bg-gray-50.text-gray-700 { color: #d1d5db !important; }
         `;
         document.head.appendChild(style);
     } else {

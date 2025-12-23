@@ -52,11 +52,6 @@ O site MyFinance oferece controle total das finanças pessoais, com automação,
 
 ---
 
-## 🚀 Demonstração (GitHub Pages)
-- Site publicado: `https://cleidson-danilo.github.io/MyFinance/`
-- Navegue pelo `Dashboard` e pelas páginas em `paginas/`:
-	- `Transações`, `Planejamento`, `Cartões`, `Relatórios`
-
 ## 🖼️ Prévia (Desktop)
 
 ![Dashboard](docs/preview-desktop.png)
@@ -66,26 +61,6 @@ O site MyFinance oferece controle total das finanças pessoais, com automação,
 - Exportar Excel: gera um `.xlsx` com abas estilizadas (Resumo, Transações, Por Categoria, Metas, Cartões).
 - Exportar PDF: cria um relatório visual com cabeçalho, estatísticas e tabelas.
 - Importar JSON: restaura seus dados (backup) em outro navegador/computador.
-
-## 🗂️ Armazenamento e Privacidade
-- Os dados são salvos em `localStorage` do navegador (chave `myFinanceState`).
-- Configurações (nome e cor) usam a chave `appConfig`.
-- Nenhum dado é enviado para servidores externos.
-
-## 🖥️ Desenvolvimento Local
-Pré-requisitos (opcional para editar estilos): Node.js + TailwindCSS.
-
-Comandos disponíveis:
-
-```powershell
-# Construir CSS uma vez
-npm run build:css
-
-# Assistir mudanças durante desenvolvimento
-npm run watch:css
-```
-
-Abra o `index.html` diretamente no navegador ou use uma extensão de servidor local.
 
 ## 🧭 Estrutura do Projeto
 ```
@@ -105,7 +80,6 @@ js/
 			└── chart.umd.min.js
 ```
 
-
 ## 🔧 Dicas e Solução de Problemas
 - Se o site publicado não refletir mudanças de estilo, force atualização: `Ctrl+F5`.
 - Em `Relatórios`, os gráficos aparecem quando houver dados registrados no período.
@@ -119,5 +93,5 @@ js/
 - Filtro avançado por múltiplas categorias.
 - Tagging e busca rápida nas transações.
 - Exportação incremental (apenas período atual).
-- Temas adicionais e modo escuro nativo.
+
 

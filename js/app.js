@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- STATE MANAGEMENT ---
+    // --- GERENCIAMENTO DE ESTADO ---
     const LOCAL_STORAGE_KEY = 'myFinanceState';
 
     const getInitialState = () => {
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(state));
     };
 
-    // --- UTILITY FUNCTIONS ---
+    // --- FUNÇÕES UTILITÁRIAS ---
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- CONFIRMATION MODAL ---
+    // --- MODAL DE CONFIRMAÇÃO ---
     const showConfirmModal = (title, message, onConfirm, onCancel) => {
         let modal = document.getElementById('confirm-modal');
         if (!modal) {
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- NAVIGATION ---
+    // --- NAVEGAÇÃO ---
     const setActiveNav = () => {
         const currentPage = window.location.pathname.split('/').pop() || 'index.html';
         const navLinks = document.querySelectorAll('nav a');
@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- MOBILE MENU ---
+    // --- MENU MOBILE ---
     const closeMobileMenu = () => {
         const sidebar = document.getElementById('sidebar');
         if (!sidebar) return;
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- DASHBOARD FUNCTIONS ---
+    // --- FUNÇÕES DO DASHBOARD ---
     const renderSummary = () => {
         const totalIncome = state.transactions
             .filter(t => t.type === 'income')
@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- TRANSACTION FUNCTIONS ---
+    // --- FUNÇÕES DE TRANSAÇÕES ---
     const renderTransactions = () => {
         const transactionList = document.getElementById('transaction-list') || 
                                document.getElementById('full-transaction-list');
@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- CHART FUNCTIONS ---
+    // --- FUNÇÕES DE GRÁFICOS ---
     const renderCategoryChart = () => {
         const chartCanvas = document.getElementById('category-chart');
         if (!chartCanvas) return;
@@ -389,7 +389,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- CARD FUNCTIONS ---
+    // --- FUNÇÕES DE CARTÕES ---
     const renderCards = () => {
         const cardList = document.getElementById('card-list');
         const dashboardCardList = document.getElementById('dashboard-card-list');
@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- GOAL FUNCTIONS ---
+    // --- FUNÇÕES DE METAS ---
     const renderGoals = () => {
         const goalList = document.getElementById('budget-list'); // Mantendo o ID por compatibilidade
         if (!goalList) return;
@@ -974,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    // --- FORM HANDLERS ---
+    // --- MANIPULADORES DE FORMULÁRIOS ---
     const setupFormHandlers = () => {
         // Transaction form
         const transactionForm = document.getElementById('transaction-form');
@@ -1057,7 +1057,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- MODAL HANDLERS ---
+    // --- MANIPULADORES DE MODAIS ---
     const setupModalHandlers = () => {
         // Generic modal handlers
         const modalButtons = [
@@ -1106,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- MAIN RENDER FUNCTION ---
+    // --- FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO ---
     const renderAll = () => {
         renderSummary();
         renderTransactions();
@@ -1117,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
         saveState();
     };
 
-    // --- INITIALIZATION ---
+    // --- INICIALIZAÇÃO ---
     const init = () => {
         setActiveNav();
         setupFormHandlers();
@@ -1160,6 +1160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAll();
     };
 
-    // Initialize the app
+    // Inicializar o app
     init();
 });

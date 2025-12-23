@@ -43,15 +43,55 @@ const applyThemeSync = (mode) => {
         const style = document.createElement('style');
         style.id = 'dark-theme-overrides';
         style.innerHTML = `
+            /* Fundo e texto geral */
             .dark body { background-color: #0b1220 !important; color: #e5e7eb !important; }
             .dark .bg-white { background-color: #0f172a !important; }
             .dark .bg-gray-50 { background-color: #0b1220 !important; }
             .dark .text-dark, .dark .text-gray-800 { color: #e5e7eb !important; }
-            .dark .text-gray-700 { color: #e5e7eb !important; }
-            .dark .text-gray-600 { color: #d1d5db !important; }
+            .dark .text-gray-700 { color: #d1d5db !important; }
+            .dark .text-gray-600 { color: #b4bcc8 !important; }
             .dark .border-gray-100, .dark .border-gray-200 { border-color: #1f2937 !important; }
             .dark .hover\\:bg-gray-50:hover { background-color: #111827 !important; }
             .dark .bg-secondary { background-color: rgba(219, 39, 119, 0.15) !important; }
+
+            /* Inputs, selects e textareas */
+            .dark input[type="text"],
+            .dark input[type="number"],
+            .dark input[type="date"],
+            .dark input[type="email"],
+            .dark input[type="password"],
+            .dark select,
+            .dark textarea {
+                background-color: #1f2937 !important;
+                border-color: #374151 !important;
+                color: #e5e7eb !important;
+            }
+            
+            .dark input::placeholder,
+            .dark textarea::placeholder {
+                color: #9ca3af !important;
+                opacity: 1 !important;
+            }
+
+            /* Labels em formulários */
+            .dark label { color: #d1d5db !important; }
+            .dark .block { color: inherit !important; }
+
+            /* Modais */
+            .dark .fixed.inset-0 { background-color: rgba(0, 0, 0, 0.7) !important; }
+            .dark .bg-white.rounded-xl { background-color: #0f172a !important; border-color: #1f2937 !important; }
+
+            /* Texto em focus/hover */
+            .dark input:focus,
+            .dark select:focus,
+            .dark textarea:focus {
+                background-color: #1f2937 !important;
+                border-color: #4b5563 !important;
+            }
+
+            /* Buttons e elementos secundários */
+            .dark .text-gray-500 { color: #9ca3af !important; }
+            .dark .text-gray-400 { color: #9ca3af !important; }
         `;
         document.head.appendChild(style);
     } else {

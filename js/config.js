@@ -142,6 +142,64 @@ const applyThemeSync = (mode) => {
             .dark .text-green-500 {
                 color: #d1d5db !important;
             }
+
+            /* Cards de Backup e Restauração */
+            .dark .bg-gradient-to-r {
+                background: linear-gradient(90deg, rgba(30, 58, 138, 0.3) 0%, rgba(55, 48, 163, 0.3) 100%) !important;
+            }
+
+            .dark .from-blue-50,
+            .dark .from-green-50 {
+                --tw-gradient-from: rgba(30, 58, 138, 0.3) !important;
+            }
+
+            .dark .to-indigo-50,
+            .dark .to-emerald-50 {
+                --tw-gradient-to: rgba(55, 48, 163, 0.3) !important;
+            }
+
+            .dark .border-blue-100,
+            .dark .border-green-100 {
+                border-color: #1e3a8a !important;
+            }
+
+            .dark .bg-gradient-to-r.from-blue-50.to-indigo-50 h3,
+            .dark .bg-gradient-to-r.from-green-50.to-emerald-50 h3 {
+                color: #e5e7eb !important;
+            }
+
+            .dark .text-blue-600,
+            .dark .text-green-600 {
+                color: #93c5fd !important;
+            }
+
+            /* Tags de Categoria */
+            .dark .bg-green-100.text-green-700,
+            .dark .bg-blue-100.text-blue-700,
+            .dark .bg-red-100.text-red-700,
+            .dark .bg-purple-100.text-purple-700,
+            .dark .bg-indigo-100.text-indigo-700,
+            .dark .bg-yellow-100.text-yellow-700,
+            .dark .bg-pink-100.text-pink-700,
+            .dark .bg-teal-100.text-teal-700,
+            .dark .bg-orange-100.text-orange-700,
+            .dark .bg-fuchsia-100.text-fuchsia-700,
+            .dark .bg-gray-100.text-gray-700 {
+                background-color: rgba(30, 41, 59, 0.8) !important;
+                border: 1px solid #334155 !important;
+            }
+
+            .dark .bg-green-100.text-green-700 { color: #86efac !important; }
+            .dark .bg-blue-100.text-blue-700 { color: #93c5fd !important; }
+            .dark .bg-red-100.text-red-700 { color: #fca5a5 !important; }
+            .dark .bg-purple-100.text-purple-700 { color: #d8b4fe !important; }
+            .dark .bg-indigo-100.text-indigo-700 { color: #a5b4fc !important; }
+            .dark .bg-yellow-100.text-yellow-700 { color: #fcd34d !important; }
+            .dark .bg-pink-100.text-pink-700 { color: #fbcfe8 !important; }
+            .dark .bg-teal-100.text-teal-700 { color: #7ee8c4 !important; }
+            .dark .bg-orange-100.text-orange-700 { color: #fed7aa !important; }
+            .dark .bg-fuchsia-100.text-fuchsia-700 { color: #f0d9ff !important; }
+            .dark .bg-gray-100.text-gray-700 { color: #d1d5db !important; }
         `;
         document.head.appendChild(style);
     } else {

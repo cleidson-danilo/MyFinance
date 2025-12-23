@@ -84,6 +84,21 @@
                         <input type="text" id="user-name-input" placeholder="Seu nome" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
                     </div>
                     <div>
+                        <span class="block text-sm font-medium text-gray-700 mb-1">Tema</span>
+                        <div class="flex items-center gap-3">
+                            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                <input type="radio" name="theme-mode" id="theme-light" class="accent-primary" checked>
+                                <i class="fa-solid fa-sun text-yellow-500"></i>
+                                <span class="text-sm text-gray-700">Claro</span>
+                            </label>
+                            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                                <input type="radio" name="theme-mode" id="theme-dark" class="accent-primary">
+                                <i class="fa-solid fa-moon text-gray-700"></i>
+                                <span class="text-sm text-gray-700">Escuro</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div>
                         <label for="app-color" class="block text-sm font-medium text-gray-700 mb-1">Cor do Tema</label>
                         <select id="app-color" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary">
                             <option value="#db2777">Rosa (Padrão)</option>

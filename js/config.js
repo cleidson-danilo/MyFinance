@@ -3,7 +3,8 @@
 const CONFIG_STORAGE_KEY = 'appConfig';
 const DEFAULT_CONFIG = {
     userName: 'Usuário',
-    primaryColor: '#db2777'
+    primaryColor: '#db2777',
+    themeMode: 'light' // 'light' | 'dark'
 };
 
 // Função para obter configurações rapidamente
@@ -30,9 +31,38 @@ const applyColorsSync = (color) => {
     document.head.appendChild(style);
 };
 
+// Aplicar tema imediatamente (evitar flash ao carregar)
+const applyThemeSync = (mode) => {
+    const root = document.documentElement;
+    // limpar estilo anterior
+    const old = document.getElementById('dark-theme-overrides');
+    if (old) old.remove();
+
+    if (mode === 'dark') {
+        root.classList.add('dark');
+        const style = document.createElement('style');
+        style.id = 'dark-theme-overrides';
+        style.innerHTML = `
+            .dark body { background-color: #0b1220 !important; color: #e5e7eb !important; }
+            .dark .bg-white { background-color: #0f172a !important; }
+            .dark .bg-gray-50 { background-color: #0b1220 !important; }
+            .dark .text-dark, .dark .text-gray-800 { color: #e5e7eb !important; }
+            .dark .text-gray-700 { color: #e5e7eb !important; }
+            .dark .text-gray-600 { color: #d1d5db !important; }
+            .dark .border-gray-100, .dark .border-gray-200 { border-color: #1f2937 !important; }
+            .dark .hover\\:bg-gray-50:hover { background-color: #111827 !important; }
+            .dark .bg-secondary { background-color: rgba(219, 39, 119, 0.15) !important; }
+        `;
+        document.head.appendChild(style);
+    } else {
+        root.classList.remove('dark');
+    }
+};
+
 // Aplicar configurações instantaneamente
 const config = getConfigSync();
 applyColorsSync(config.primaryColor);
+applyThemeSync(config.themeMode || 'light');
 
 // Aguardar DOM carregar para o resto
 document.addEventListener('DOMContentLoaded', () => {
@@ -86,6 +116,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
         }
+
+        // Aplicar tema (claro/escuro)
+        applyThemeSync(config.themeMode || 'light');
+
+        // Atualizar UI do tema se existir
+        const themeLight = document.getElementById('theme-light');
+        const themeDark = document.getElementById('theme-dark');
+        if (themeLight && themeDark) {
+            const mode = (config.themeMode || 'light');
+            themeLight.checked = mode === 'light';
+            themeDark.checked = mode === 'dark';
+        }
     };
 
     // --- ATUALIZAR CORES DO TAILWIND ---
@@ -118,9 +160,16 @@ document.addEventListener('DOMContentLoaded', () => {
             // Preencher formulário com valores atuais
             const userNameInput = document.getElementById('user-name-input');
             const appColorSelect = document.getElementById('app-color');
+            const themeLight = document.getElementById('theme-light');
+            const themeDark = document.getElementById('theme-dark');
             
             if (userNameInput) userNameInput.value = config.userName;
             if (appColorSelect) appColorSelect.value = config.primaryColor;
+            if (themeLight && themeDark) {
+                const mode = config.themeMode || 'light';
+                themeLight.checked = mode === 'light';
+                themeDark.checked = mode === 'dark';
+            }
             
             configModal.classList.remove('hidden');
         });
@@ -154,10 +203,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const userNameInput = document.getElementById('user-name-input');
                 const appColorSelect = document.getElementById('app-color');
+                const themeLight = document.getElementById('theme-light');
                 
                 const newConfig = {
                     userName: userNameInput ? userNameInput.value.trim() || 'Usuário' : 'Usuário',
-                    primaryColor: appColorSelect ? appColorSelect.value : '#db2777'
+                    primaryColor: appColorSelect ? appColorSelect.value : '#db2777',
+                    themeMode: themeLight && themeLight.checked ? 'light' : 'dark'
                 };
                 
                 saveConfig(newConfig);

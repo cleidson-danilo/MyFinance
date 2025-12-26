@@ -171,7 +171,8 @@
                         <a href="paginas/transacoes.html" class="text-sm text-primary font-medium hover:underline">Ver tudo</a>
                     </div>
 
-                    <div class="overflow-x-auto">
+                    <!-- Tabela para Desktop -->
+                    <div class="hidden sm:block overflow-x-auto">
                         <table class="w-full text-left border-collapse">
                             <thead>
                                 <tr class="text-xs text-gray-500 uppercase border-b border-gray-100">
@@ -186,6 +187,11 @@
                                 <!-- As transações serão inseridas aqui via JS -->
                             </tbody>
                         </table>
+                    </div>
+
+                    <!-- Cards para Mobile -->
+                    <div id="transaction-list-mobile" class="sm:hidden space-y-3">
+                        <!-- Cards serão inseridos aqui via JS -->
                     </div>
                 </div>
 

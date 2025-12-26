@@ -198,18 +198,32 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderTransactions = () => {
         const transactionList = document.getElementById('transaction-list') || 
                                document.getElementById('full-transaction-list');
-        if (!transactionList) return;
+        const transactionListMobile = document.getElementById('transaction-list-mobile') ||
+                                     document.getElementById('full-transaction-list-mobile');
+        
+        if (!transactionList && !transactionListMobile) return;
 
-        transactionList.innerHTML = '';
+        // Limpar ambas as listas
+        if (transactionList) transactionList.innerHTML = '';
+        if (transactionListMobile) transactionListMobile.innerHTML = '';
 
         if (state.transactions.length === 0) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td colspan="6" class="text-center py-10 text-gray-500">
-                    Nenhuma transação ainda. Comece adicionando uma!
-                </td>
-            `;
-            transactionList.appendChild(row);
+            if (transactionList) {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td colspan="6" class="text-center py-10 text-gray-500">
+                        Nenhuma transação ainda. Comece adicionando uma!
+                    </td>
+                `;
+                transactionList.appendChild(row);
+            }
+            if (transactionListMobile) {
+                transactionListMobile.innerHTML = `
+                    <div class="text-center py-10 text-gray-500">
+                        Nenhuma transação ainda. Comece adicionando uma!
+                    </div>
+                `;
+            }
             return;
         }
 
@@ -237,47 +251,85 @@ document.addEventListener('DOMContentLoaded', () => {
             .slice()
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .forEach(transaction => {
-                const row = document.createElement('tr');
-                row.className = 'border-b border-gray-50 hover:bg-gray-50 transition-colors';
-                
                 const status = statusInfo[transaction.status] || statusInfo.pending;
                 const categoryColor = categoryColors[transaction.category] || categoryColors['Outros'];
                 
-                row.innerHTML = `
-                    <td class="py-4 font-medium text-dark">${transaction.name}</td>
-                    <td class="py-4">
-                        <span class="px-2 py-1 rounded-full text-xs ${categoryColor}">
-                            ${transaction.category}
-                        </span>
-                    </td>
-                    <td class="py-4 text-gray-500">${formatDate(transaction.date)}</td>
-                    <td class="py-4 ${status.color}">
-                        <i class="${status.icon} mr-2"></i>${status.text}
-                    </td>
-                    <td class="py-4 text-right font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-500'}">
-                        ${transaction.type === 'outcome' ? '-' : '+'} ${formatCurrency(transaction.amount)}
-                    </td>
-                    <td class="py-4 text-right">
-                        <button class="edit-transaction-btn text-blue-600 mr-2" data-id="${transaction.id}">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button class="delete-transaction-btn text-red-600" data-id="${transaction.id}">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </td>
-                `;
-                transactionList.appendChild(row);
+                // Renderizar para Desktop (tabela)
+                if (transactionList) {
+                    const row = document.createElement('tr');
+                    row.className = 'border-b border-gray-50 hover:bg-gray-50 transition-colors';
+                    
+                    row.innerHTML = `
+                        <td class="py-4 font-medium text-dark">${transaction.name}</td>
+                        <td class="py-4">
+                            <span class="px-2 py-1 rounded-full text-xs ${categoryColor}">
+                                ${transaction.category}
+                            </span>
+                        </td>
+                        <td class="py-4 text-gray-500">${formatDate(transaction.date)}</td>
+                        <td class="py-4 ${status.color}">
+                            <i class="${status.icon} mr-2"></i>${status.text}
+                        </td>
+                        <td class="py-4 text-right font-medium ${transaction.type === 'income' ? 'text-green-600' : 'text-red-500'}">
+                            ${transaction.type === 'outcome' ? '-' : '+'} ${formatCurrency(transaction.amount)}
+                        </td>
+                        <td class="py-4 text-right">
+                            <button class="edit-transaction-btn text-blue-600 mr-2" data-id="${transaction.id}">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="delete-transaction-btn text-red-600" data-id="${transaction.id}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    `;
+                    transactionList.appendChild(row);
+                }
+
+                // Renderizar para Mobile (cards)
+                if (transactionListMobile) {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white border border-gray-200 rounded-lg p-4 shadow-sm';
+                    
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-dark text-sm">${transaction.name}</h4>
+                                <span class="inline-block mt-1 px-2 py-0.5 rounded-full text-xs ${categoryColor}">
+                                    ${transaction.category}
+                                </span>
+                            </div>
+                            <span class="text-base font-bold ${transaction.type === 'income' ? 'text-green-600' : 'text-red-500'}">
+                                ${transaction.type === 'outcome' ? '-' : '+'} ${formatCurrency(transaction.amount)}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100">
+                            <div class="flex items-center gap-3 text-gray-500" style="font-size: 0.7rem;">
+                                <span><i class="fa-regular fa-calendar mr-1"></i>${formatDate(transaction.date)}</span>
+                                <span class="${status.color}"><i class="${status.icon} mr-1"></i>${status.text}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button class="edit-transaction-btn text-blue-600 p-1" data-id="${transaction.id}">
+                                    <i class="fa-solid fa-pen"></i>
+                                </button>
+                                <button class="delete-transaction-btn text-red-600 p-1" data-id="${transaction.id}">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    transactionListMobile.appendChild(card);
+                }
             });
 
-        // Event listeners para edit e delete
-        transactionList.querySelectorAll('.edit-transaction-btn').forEach(btn => {
+        // Event listeners para edit e delete (ambas as versões)
+        document.querySelectorAll('.edit-transaction-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = Number(btn.getAttribute('data-id'));
                 openEditTransactionModal(id);
             });
         });
 
-        transactionList.querySelectorAll('.delete-transaction-btn').forEach(btn => {
+        document.querySelectorAll('.delete-transaction-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const id = Number(btn.getAttribute('data-id'));
                 const transaction = state.transactions.find(t => t.id === id);
@@ -447,33 +499,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const due = card.dueDay ?? '-';
         
         const cardElement = document.createElement('div');
-        cardElement.className = 'bg-gradient-to-br from-pink-100 via-white to-blue-100 p-6 rounded-2xl shadow-lg border border-gray-200 flex flex-col gap-2 relative transition-transform hover:scale-105';
+        cardElement.className = 'bg-gradient-to-br from-pink-100 via-white to-blue-100 p-4 sm:p-6 rounded-2xl shadow-lg border border-gray-200 flex flex-col gap-2 relative transition-transform hover:scale-105';
         
         cardElement.innerHTML = `
-            <div class="flex justify-between items-center mb-2">
-                <span class="inline-block bg-primary text-white px-3 py-1 rounded-full text-xs font-bold">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 mb-2">
+                <span class="inline-block bg-primary text-white px-3 py-1 rounded-full text-xs font-bold w-fit">
                     <i class="fa-solid fa-credit-card mr-1"></i>
                     ${card.brand.charAt(0).toUpperCase() + card.brand.slice(1)}
                 </span>
-                <span class="text-lg font-bold text-primary">${formatCurrency(card.limit)}</span>
+                <span class="text-base sm:text-lg font-bold text-primary">${formatCurrency(card.limit)}</span>
             </div>
-            <h3 class="font-bold text-xl text-dark mb-1">${card.name}</h3>
-            <div class="flex gap-4 text-sm text-gray-600 mb-2">
-                <span>
+            <h3 class="font-bold text-lg sm:text-xl text-dark mb-1 break-words">${card.name}</h3>
+            <div class="flex flex-col sm:flex-row gap-1 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-2">
+                <span class="flex items-center">
                     <i class="fa-regular fa-calendar-days mr-1"></i> 
                     Fechamento: <span class="font-semibold">${closing}</span>
                 </span>
-                <span>
+                <span class="flex items-center">
                     <i class="fa-regular fa-calendar-check mr-1"></i> 
                     Vencimento: <span class="font-semibold">${due}</span>
                 </span>
             </div>
             <div class="flex flex-col gap-1 mb-2">
-                <span class="text-sm text-gray-700">
+                <span class="text-xs sm:text-sm text-gray-700">
                     <i class="fa-solid fa-coins mr-1"></i> 
                     Usado: <span class="font-semibold ${used > card.limit * 0.8 ? 'text-red-600' : 'text-red-500'}">${formatCurrency(used)}</span>
                 </span>
-                <span class="text-sm text-gray-700">
+                <span class="text-xs sm:text-sm text-gray-700">
                     <i class="fa-solid fa-wallet mr-1"></i> 
                     Disponível: <span class="font-semibold text-green-600">${formatCurrency(available)}</span>
                 </span>
@@ -484,10 +536,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${percent > 80 ? '<p class="text-xs text-red-500 mt-1"><i class="fa-solid fa-exclamation-triangle"></i> Limite alto!</p>' : ''}
             </div>
             <div class="flex justify-end gap-2 mt-2">
-                <button class="edit-card-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg shadow-sm text-sm font-medium flex items-center gap-1" data-id="${card.id}">
+                <button class="edit-card-btn bg-blue-600 hover:bg-blue-700 text-white px-2 sm:px-3 py-1 rounded-lg shadow-sm text-xs sm:text-sm font-medium flex items-center gap-1" data-id="${card.id}">
                     <i class="fa-solid fa-pen"></i> Editar
                 </button>
-                <button class="delete-card-btn bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg shadow-sm text-sm font-medium flex items-center gap-1" data-id="${card.id}">
+                <button class="delete-card-btn bg-red-500 hover:bg-red-600 text-white px-2 sm:px-3 py-1 rounded-lg shadow-sm text-xs sm:text-sm font-medium flex items-center gap-1" data-id="${card.id}">
                     <i class="fa-solid fa-trash"></i> Excluir
                 </button>
             </div>

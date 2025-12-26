@@ -80,7 +80,8 @@
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                <div class="overflow-x-auto">
+                <!-- Desktop: Tabela -->
+                <div class="hidden sm:block overflow-x-auto">
                     <table class="w-full text-left border-collapse">
                         <thead>
                             <tr class="text-xs text-gray-500 uppercase border-b border-gray-100">
@@ -95,6 +96,11 @@
                             <!-- As transações serão inseridas aqui -->
                         </tbody>
                     </table>
+                </div>
+                
+                <!-- Mobile: Cards -->
+                <div id="full-transaction-list-mobile" class="sm:hidden space-y-3">
+                    <!-- Cards serão inseridos aqui -->
                 </div>
             </div>
         </main>
@@ -178,7 +184,19 @@
                     </div>
                     <div>
                         <label for="transaction-category" class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
-                        <input type="text" id="transaction-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                        <select id="transaction-category" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                            <option value="Alimentação">Alimentação</option>
+                            <option value="Transporte">Transporte</option>
+                            <option value="Saúde">Saúde</option>
+                            <option value="Lazer">Lazer</option>
+                            <option value="Moradia">Moradia</option>
+                            <option value="Educação">Educação</option>
+                            <option value="Cartão de Crédito">Cartão de Crédito</option>
+                            <option value="Salário">Salário</option>
+                            <option value="Investimento">Investimento</option>
+                            <option value="Beleza">Beleza</option>
+                            <option value="Outros">Outros</option>
+                        </select>
                     </div>
                     <div>
                         <label for="transaction-date" class="block text-sm font-medium text-gray-700 mb-1">Data</label>

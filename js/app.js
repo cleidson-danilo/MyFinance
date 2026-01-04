@@ -48,6 +48,104 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Função para verificar se uma transação é do mês/ano especificado
+    const isTransactionInMonth = (transaction, month, year) => {
+        const transactionDate = new Date(transaction.date + 'T00:00:00');
+        return transactionDate.getMonth() === month && transactionDate.getFullYear() === year;
+    };
+
+    // Função para obter transações do mês atual
+    const getCurrentMonthTransactions = () => {
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        return state.transactions.filter(t => isTransactionInMonth(t, currentMonth, currentYear));
+    };
+
+    // Função para obter transações filtradas por mês/ano (para página de transações)
+    const getFilteredTransactions = (month, year) => {
+        if (month === 'all') {
+            return state.transactions;
+        }
+        return state.transactions.filter(t => isTransactionInMonth(t, month, year));
+    };
+
+    // Função para obter transações baseado nos filtros da página de transações
+    const getTransactionsForFilter = () => {
+        const monthFilter = document.getElementById('filter-month');
+        const yearFilter = document.getElementById('filter-year');
+        const searchInput = document.getElementById('search-input');
+        const filterType = document.getElementById('filter-type');
+        const filterCategory = document.getElementById('filter-category');
+        
+        let filtered = state.transactions;
+        
+        // Filtro de mês e ano
+        if (monthFilter && yearFilter) {
+            const selectedMonth = monthFilter.value;
+            const selectedYear = yearFilter.value;
+            
+            // Se o mês não for "all", filtrar pelo mês e ano selecionados
+            if (selectedMonth !== 'all') {
+                filtered = filtered.filter(t => {
+                    const date = new Date(t.date + 'T00:00:00');
+                    return date.getMonth() === parseInt(selectedMonth) && 
+                           date.getFullYear() === parseInt(selectedYear);
+                });
+            } else if (selectedYear !== 'all') {
+                // Se mês for "all" mas ano não, filtrar só pelo ano
+                filtered = filtered.filter(t => {
+                    const date = new Date(t.date + 'T00:00:00');
+                    return date.getFullYear() === parseInt(selectedYear);
+                });
+            }
+        }
+        
+        // Filtro de busca por nome
+        if (searchInput && searchInput.value.trim()) {
+            const searchTerm = searchInput.value.trim().toLowerCase();
+            filtered = filtered.filter(t => t.name.toLowerCase().includes(searchTerm));
+        }
+        
+        // Filtro de tipo (entrada/saída)
+        if (filterType && filterType.value !== 'all') {
+            filtered = filtered.filter(t => t.type === filterType.value);
+        }
+        
+        // Filtro de categoria
+        if (filterCategory && filterCategory.value !== 'all') {
+            filtered = filtered.filter(t => t.category === filterCategory.value);
+        }
+        
+        return filtered;
+    };
+
+    // Gerar lista de meses disponíveis baseado nas transações existentes
+    const getAvailableMonths = () => {
+        const months = new Set();
+        const now = new Date();
+        
+        // Sempre incluir o mês atual
+        months.add(`${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`);
+        
+        // Adicionar meses das transações existentes
+        state.transactions.forEach(t => {
+            const date = new Date(t.date + 'T00:00:00');
+            months.add(`${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`);
+        });
+        
+        // Converter para array e ordenar (mais recente primeiro)
+        return Array.from(months).sort((a, b) => b.localeCompare(a));
+    };
+
+    // Formatar mês para exibição
+    const formatMonthLabel = (monthStr) => {
+        const [year, month] = monthStr.split('-');
+        const date = new Date(year, month - 1);
+        const monthName = date.toLocaleString('pt-BR', { month: 'long' });
+        return `${monthName.charAt(0).toUpperCase() + monthName.slice(1)} ${year}`;
+    };
+
     // --- MODAL DE CONFIRMAÇÃO ---
     const showConfirmModal = (title, message, onConfirm, onCancel) => {
         let modal = document.getElementById('confirm-modal');
@@ -150,11 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FUNÇÕES DO DASHBOARD ---
     const renderSummary = () => {
-        const totalIncome = state.transactions
+        // Usar apenas transações do mês atual para o Dashboard
+        const currentMonthTransactions = getCurrentMonthTransactions();
+        
+        const totalIncome = currentMonthTransactions
             .filter(t => t.type === 'income')
             .reduce((acc, t) => acc + t.amount, 0);
 
-        const totalOutcomeTransactions = state.transactions
+        const totalOutcomeTransactions = currentMonthTransactions
             .filter(t => t.type === 'outcome')
             .reduce((acc, t) => acc + t.amount, 0);
             
@@ -195,7 +296,14 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- FUNÇÕES DE TRANSAÇÕES ---
+    // Variável para armazenar o filtro de mês selecionado na página de transações
+    let selectedMonthFilter = 'current';
+
     const renderTransactions = () => {
+        // Verificar se estamos no Dashboard ou na página de Transações
+        const isDashboard = document.getElementById('transaction-list') !== null;
+        const isTransactionsPage = document.getElementById('full-transaction-list') !== null;
+        
         const transactionList = document.getElementById('transaction-list') || 
                                document.getElementById('full-transaction-list');
         const transactionListMobile = document.getElementById('transaction-list-mobile') ||
@@ -207,12 +315,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (transactionList) transactionList.innerHTML = '';
         if (transactionListMobile) transactionListMobile.innerHTML = '';
 
-        if (state.transactions.length === 0) {
+        // Determinar quais transações mostrar
+        let transactionsToShow;
+        if (isDashboard) {
+            // No Dashboard: mostrar apenas transações do mês atual
+            transactionsToShow = getCurrentMonthTransactions();
+        } else if (isTransactionsPage) {
+            // Na página de Transações: usar o filtro selecionado
+            transactionsToShow = getTransactionsForFilter();
+        } else {
+            transactionsToShow = state.transactions;
+        }
+
+        if (transactionsToShow.length === 0) {
+            const message = isDashboard 
+                ? 'Nenhuma transação neste mês. Comece adicionando uma!'
+                : 'Nenhuma transação encontrada para o período selecionado.';
+            
             if (transactionList) {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td colspan="6" class="text-center py-10 text-gray-500">
-                        Nenhuma transação ainda. Comece adicionando uma!
+                        ${message}
                     </td>
                 `;
                 transactionList.appendChild(row);
@@ -220,7 +344,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (transactionListMobile) {
                 transactionListMobile.innerHTML = `
                     <div class="text-center py-10 text-gray-500">
-                        Nenhuma transação ainda. Comece adicionando uma!
+                        ${message}
                     </div>
                 `;
             }
@@ -247,7 +371,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'pending': { text: 'Pendente', icon: 'fa-regular fa-circle', color: 'text-gray-400' }
         };
 
-        state.transactions
+        transactionsToShow
             .slice()
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .forEach(transaction => {
@@ -355,9 +479,12 @@ document.addEventListener('DOMContentLoaded', () => {
             window.categoryChart.destroy();
         }
 
-        // Calcular gastos por categoria
+        // Usar apenas transações do mês atual para o gráfico do Dashboard
+        const currentMonthTransactions = getCurrentMonthTransactions();
+
+        // Calcular gastos por categoria (apenas do mês atual)
         const categoryExpenses = {};
-        state.transactions
+        currentMonthTransactions
             .filter(t => t.type === 'outcome')
             .forEach(transaction => {
                 if (!categoryExpenses[transaction.category]) {
@@ -622,7 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         state.goals.forEach(goal => {
             const progress = calculateGoalProgress(goal);
-            const { current, target, percent, status, message, icon, colorClass } = progress;
+            const { current, target, percent, status, message, icon, colorClass, showAddButton } = progress;
 
             const goalElement = document.createElement('div');
             goalElement.className = 'bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col';
@@ -665,7 +792,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </p>
                 </div>
                 
-                <div class="flex justify-end gap-2 mt-4">
+                <div class="flex flex-wrap justify-end gap-2 mt-4">
+                    ${showAddButton ? `
+                        <button class="add-value-btn bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg shadow-sm text-sm font-medium flex items-center gap-1" data-id="${goal.id}">
+                            <i class="fa-solid fa-plus"></i> Adicionar Valor
+                        </button>
+                    ` : ''}
                     <button class="edit-goal-btn bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-lg shadow-sm text-sm font-medium flex items-center gap-1" data-id="${goal.id}">
                         <i class="fa-solid fa-pen"></i> Editar
                     </button>
@@ -683,6 +815,13 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.addEventListener('click', () => {
                 const id = Number(btn.getAttribute('data-id'));
                 openEditGoalModal(id);
+            });
+        });
+
+        goalList.querySelectorAll('.add-value-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = Number(btn.getAttribute('data-id'));
+                openAddValueModal(id);
             });
         });
 
@@ -711,12 +850,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let message = '';
         let icon = 'fa-solid fa-target';
         let colorClass = 'text-blue-600';
+        let showAddButton = false; // Mostrar botão de adicionar valor
+
+        // Se não tiver tipo definido, assume economia
+        const goalType = goal.type || 'savings';
 
         // Calcular progresso baseado no tipo da meta
-        switch (goal.type) {
+        switch (goalType) {
             case 'expense_limit': {
-                // Limite de gastos - quanto foi gasto na categoria
-                current = state.transactions
+                // Limite de gastos - quanto foi gasto na categoria (calculado das transações)
+                current = getCurrentMonthTransactions()
                     .filter(t => t.category === goal.category && t.type === 'outcome')
                     .reduce((acc, t) => acc + t.amount, 0);
                 
@@ -738,18 +881,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     icon = 'fa-solid fa-shield-check';
                     colorClass = 'text-green-600';
                 }
+                // Não mostra botão de adicionar para limite de gasto
+                showAddButton = false;
                 break;
             }
             
             case 'savings': {
-                // Meta de economia - quanto foi economizado (entradas - saídas na categoria)
-                const income = state.transactions
-                    .filter(t => t.category === goal.category && t.type === 'income')
-                    .reduce((acc, t) => acc + t.amount, 0);
-                const outcome = state.transactions
-                    .filter(t => t.category === goal.category && t.type === 'outcome')
-                    .reduce((acc, t) => acc + t.amount, 0);
-                current = income - outcome;
+                // Meta de economia - usa o valor guardado manualmente
+                current = goal.saved || 0;
+                showAddButton = true;
                 
                 percent = target > 0 ? (current / target) * 100 : 0;
                 
@@ -768,21 +908,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             case 'investment': {
-                // Meta de investimento - quanto foi investido na categoria
-                current = state.transactions
-                    .filter(t => t.category === goal.category && t.type === 'outcome')
-                    .reduce((acc, t) => acc + t.amount, 0);
+                // Meta de investimento - usa o valor guardado manualmente
+                current = goal.saved || 0;
+                showAddButton = true;
                 
                 percent = target > 0 ? (current / target) * 100 : 0;
                 
                 if (percent >= 100) {
                     status = 'Meta de investimento atingida! 🚀';
-                    message = `Você investiu ${formatCurrency(current)} na categoria ${goal.category}`;
+                    message = `Você já guardou ${formatCurrency(current)} para ${goal.name}`;
                     icon = 'fa-solid fa-chart-line';
                     colorClass = 'text-green-600';
                 } else {
-                    status = 'Investindo...';
-                    message = `Faltam ${formatCurrency(target - current)} para completar o investimento`;
+                    status = 'Guardando...';
+                    message = `Faltam ${formatCurrency(target - current)} para completar`;
                     icon = 'fa-solid fa-chart-line';
                     colorClass = 'text-blue-600';
                 }
@@ -790,16 +929,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             case 'debt_payment': {
-                // Pagamento de dívida - quanto foi pago na categoria
-                current = state.transactions
-                    .filter(t => t.category === goal.category && t.type === 'outcome')
-                    .reduce((acc, t) => acc + t.amount, 0);
+                // Pagamento de dívida - usa o valor pago manualmente
+                current = goal.saved || 0;
+                showAddButton = true;
                 
                 percent = target > 0 ? (current / target) * 100 : 0;
                 
                 if (percent >= 100) {
                     status = 'Dívida quitada! 🎊';
-                    message = `Parabéns! Você pagou toda a dívida de ${goal.category}`;
+                    message = `Parabéns! Você pagou toda a dívida`;
                     icon = 'fa-solid fa-check-circle';
                     colorClass = 'text-green-600';
                 } else {
@@ -810,9 +948,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 break;
             }
+            
+            default: {
+                // Para qualquer outro tipo não reconhecido, permitir adicionar valor manualmente
+                current = goal.saved || 0;
+                showAddButton = true;
+                
+                percent = target > 0 ? (current / target) * 100 : 0;
+                
+                if (percent >= 100) {
+                    status = 'Meta atingida! 🎉';
+                    message = `Parabéns! Você completou a meta`;
+                    icon = 'fa-solid fa-trophy';
+                    colorClass = 'text-green-600';
+                } else {
+                    status = 'Em progresso...';
+                    message = `Faltam ${formatCurrency(target - current)} para completar`;
+                    icon = 'fa-solid fa-bullseye';
+                    colorClass = 'text-blue-600';
+                }
+                break;
+            }
         }
 
-        return { current, target, percent, status, message, icon, colorClass };
+        return { current, target, percent, status, message, icon, colorClass, showAddButton };
     };
 
     // --- MODAL FUNCTIONS ---
@@ -1003,16 +1162,38 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!modal || !form) return;
 
-        form.name.value = goal.name;
-        form.amount.value = goal.amount;
-        form.category.value = goal.category;
-        if (form.type) form.type.value = goal.type || 'expense_limit';
+        // Função para fechar o modal
+        const closeModal = () => modal.classList.add('hidden');
 
-        modal.classList.remove('hidden');
+        // Event listener para o botão X
+        const closeBtn = document.getElementById('close-edit-budget-modal-btn');
+        if (closeBtn) {
+            // Remover listeners anteriores clonando o botão
+            const newCloseBtn = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+            newCloseBtn.addEventListener('click', closeModal);
+        }
 
-        // Remove event listeners anteriores
+        // Fechar ao clicar fora do modal
+        modal.onclick = (e) => {
+            if (e.target === modal) closeModal();
+        };
+
+        // Remove event listeners anteriores do form
         const newForm = form.cloneNode(true);
         form.parentNode.replaceChild(newForm, form);
+
+        // Preencher os valores DEPOIS de clonar o formulário
+        newForm.name.value = goal.name;
+        newForm.amount.value = goal.amount;
+        
+        // Para selects, precisamos definir o valor depois de clonar
+        if (newForm.category) {
+            newForm.category.value = goal.category || 'Outros';
+        }
+        if (newForm.type) {
+            newForm.type.value = goal.type || 'savings';
+        }
 
         newForm.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -1021,8 +1202,145 @@ document.addEventListener('DOMContentLoaded', () => {
             goal.category = newForm.category.value;
             if (newForm.type) goal.type = newForm.type.value;
             
-            modal.classList.add('hidden');
+            closeModal();
             renderAll();
+        });
+
+        // Mostrar o modal depois de tudo configurado
+        modal.classList.remove('hidden');
+    };
+
+    // Modal para adicionar valor a uma meta
+    const openAddValueModal = (id) => {
+        const goal = state.goals.find(g => g.id === id);
+        if (!goal) return;
+
+        const currentSaved = goal.saved || 0;
+        const remaining = goal.amount - currentSaved;
+        const percent = goal.amount > 0 ? Math.round((currentSaved / goal.amount) * 100) : 0;
+
+        // Criar modal dinamicamente se não existir
+        let modal = document.getElementById('add-value-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'add-value-modal';
+            modal.className = 'fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 hidden';
+            document.body.appendChild(modal);
+        }
+
+        modal.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm mx-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-bold text-dark">Atualizar Progresso</h3>
+                    <button type="button" id="close-add-value-btn" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-gray-800 hover:bg-gray-100 rounded-full text-xl">×</button>
+                </div>
+                
+                <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                    <h4 class="font-semibold text-dark text-sm mb-2">${goal.name}</h4>
+                    
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-gray-600">Progresso</span>
+                        <span class="font-semibold ${percent >= 100 ? 'text-green-600' : 'text-blue-600'}">${percent}%</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                        <div class="h-2 rounded-full ${percent >= 100 ? 'bg-green-500' : 'bg-primary'}" 
+                             style="width: ${Math.min(percent, 100)}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between text-xs">
+                        <span><span class="text-gray-500">Guardado:</span> <span class="font-bold text-green-600">${formatCurrency(currentSaved)}</span></span>
+                        <span><span class="text-gray-500">Meta:</span> <span class="font-bold">${formatCurrency(goal.amount)}</span></span>
+                    </div>
+                </div>
+                
+                <form id="add-value-form">
+                    <div class="mb-3">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+                        <input type="number" id="add-value-amount" step="0.01" min="0.01" placeholder="0,00" 
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary" required>
+                    </div>
+                    
+                    <div class="grid grid-cols-4 gap-2 mb-4">
+                        <button type="button" class="quick-value-btn py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50" data-value="50">+50</button>
+                        <button type="button" class="quick-value-btn py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50" data-value="100">+100</button>
+                        <button type="button" class="quick-value-btn py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50" data-value="200">+200</button>
+                        <button type="button" class="quick-value-btn py-1.5 border border-gray-300 rounded text-xs font-medium text-gray-700 hover:bg-gray-50" data-value="500">+500</button>
+                    </div>
+                    
+                    <div class="flex gap-2 mb-3">
+                        <button type="button" id="subtract-value-btn" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg text-sm font-medium">
+                            <i class="fa-solid fa-minus mr-1"></i>Subtrair
+                        </button>
+                        <button type="submit" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm font-medium">
+                            <i class="fa-solid fa-plus mr-1"></i>Adicionar
+                        </button>
+                    </div>
+                    
+                    <button type="button" id="reset-value-btn" class="w-full text-xs text-gray-400 hover:text-red-600">
+                        <i class="fa-solid fa-rotate-left mr-1"></i>Zerar progresso
+                    </button>
+                </form>
+            </div>
+        `;
+
+        modal.classList.remove('hidden');
+
+        // Event listeners
+        const closeBtn = document.getElementById('close-add-value-btn');
+        const form = document.getElementById('add-value-form');
+        const amountInput = document.getElementById('add-value-amount');
+        const subtractBtn = document.getElementById('subtract-value-btn');
+        const resetBtn = document.getElementById('reset-value-btn');
+
+        const closeModal = () => modal.classList.add('hidden');
+
+        closeBtn.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Botões de valor rápido
+        document.querySelectorAll('.quick-value-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const value = parseFloat(btn.getAttribute('data-value'));
+                const currentValue = parseFloat(amountInput.value) || 0;
+                amountInput.value = (currentValue + value).toFixed(2);
+            });
+        });
+
+        // Botão de subtrair
+        subtractBtn.addEventListener('click', () => {
+            const valueToSubtract = parseFloat(amountInput.value);
+            if (valueToSubtract > 0) {
+                goal.saved = Math.max(0, (goal.saved || 0) - valueToSubtract);
+                closeModal();
+                renderAll();
+            }
+        });
+
+        // Botão de zerar
+        resetBtn.addEventListener('click', () => {
+            showConfirmModal(
+                'Zerar Progresso?',
+                `Tem certeza que deseja zerar o progresso de <strong>${goal.name}</strong>?`,
+                () => {
+                    goal.saved = 0;
+                    closeModal();
+                    renderAll();
+                }
+            );
+        });
+
+        // Submit do formulário (adicionar)
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const valueToAdd = parseFloat(amountInput.value);
+            
+            if (valueToAdd > 0) {
+                goal.saved = (goal.saved || 0) + valueToAdd;
+                closeModal();
+                renderAll();
+            }
         });
     };
 
@@ -1158,6 +1476,82 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- SETUP DO FILTRO DE MÊS E ANO (Página de Transações) ---
+    const setupMonthFilter = () => {
+        const monthFilter = document.getElementById('filter-month');
+        const yearFilter = document.getElementById('filter-year');
+        if (!monthFilter || !yearFilter) return; // Não estamos na página de transações
+        
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        // Preencher o select de anos (2024 até 2035)
+        yearFilter.innerHTML = '';
+        for (let year = 2024; year <= 2035; year++) {
+            const option = document.createElement('option');
+            option.value = year;
+            option.textContent = year;
+            if (year === currentYear) {
+                option.selected = true;
+            }
+            yearFilter.appendChild(option);
+        }
+        
+        // Selecionar o mês atual por padrão
+        monthFilter.value = currentMonth.toString();
+        
+        // Event listeners para mudança de filtros
+        monthFilter.addEventListener('change', () => renderTransactions());
+        yearFilter.addEventListener('change', () => renderTransactions());
+        
+        // Outros filtros
+        const searchInput = document.getElementById('search-input');
+        const filterType = document.getElementById('filter-type');
+        const filterCategory = document.getElementById('filter-category');
+        const clearFiltersBtn = document.getElementById('clear-filters-btn');
+        
+        // Popular categorias no filtro
+        if (filterCategory) {
+            const categories = [
+                'Alimentação', 'Transporte', 'Saúde', 'Lazer', 'Moradia',
+                'Educação', 'Cartão de Crédito', 'Salário', 'Investimento',
+                'Beleza', 'Seguro', 'Outros'
+            ];
+            
+            filterCategory.innerHTML = '<option value="all">Todas as Categorias</option>';
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                filterCategory.appendChild(option);
+            });
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', () => renderTransactions());
+        }
+        if (filterType) {
+            filterType.addEventListener('change', () => renderTransactions());
+        }
+        if (filterCategory) {
+            filterCategory.addEventListener('change', () => renderTransactions());
+        }
+        
+        // Botão de limpar filtros
+        if (clearFiltersBtn) {
+            clearFiltersBtn.addEventListener('click', () => {
+                // Resetar para o mês e ano atual
+                monthFilter.value = currentMonth.toString();
+                yearFilter.value = currentYear.toString();
+                if (searchInput) searchInput.value = '';
+                if (filterType) filterType.value = 'all';
+                if (filterCategory) filterCategory.value = 'all';
+                renderTransactions();
+            });
+        }
+    };
+
     // --- FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO ---
     const renderAll = () => {
         renderSummary();
@@ -1174,6 +1568,7 @@ document.addEventListener('DOMContentLoaded', () => {
         setActiveNav();
         setupFormHandlers();
         setupModalHandlers();
+        setupMonthFilter(); // Inicializar filtro de mês na página de transações
         
         // Mobile menu toggle
         const menuToggleBtn = document.getElementById('menu-toggle-btn');

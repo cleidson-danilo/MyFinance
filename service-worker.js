@@ -1,4 +1,4 @@
-const CACHE_NAME = 'myfinance-v1';
+const CACHE_NAME = 'myfinance-v2';
 const urlsToCache = [
   './',
   './index.html',
@@ -12,7 +12,12 @@ const urlsToCache = [
   './js/reports.js',
   './js/relatorios.js',
   './js/vendor/chart.umd.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
+  './icons/icon-72x72.png',
+  './icons/icon-96x96.png',
+  './icons/icon-192x192.png',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-solid-900.woff2',
+  'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/webfonts/fa-regular-400.woff2'
 ];
 
 // Instalação do Service Worker

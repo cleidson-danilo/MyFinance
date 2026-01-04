@@ -417,19 +417,96 @@
         });
     </script>
 
-    <!-- Service Worker Registration -->
+    <!-- Toast de Atualização -->
+    <div id="update-toast" class="fixed bottom-20 left-4 right-4 md:left-auto md:right-6 md:w-80 bg-white rounded-xl shadow-2xl border border-gray-200 p-4 transform translate-y-full opacity-0 transition-all duration-300 z-50" style="display: none;">
+        <div class="flex items-start gap-3">
+            <div class="p-2 bg-primary/10 rounded-lg">
+                <i class="fa-solid fa-arrow-rotate-right text-primary text-lg"></i>
+            </div>
+            <div class="flex-1">
+                <h4 class="font-bold text-gray-800 text-sm">Nova atualização disponível!</h4>
+                <p class="text-xs text-gray-500 mt-1">Uma nova versão do MyFinance está pronta.</p>
+            </div>
+        </div>
+        <div class="flex gap-2 mt-3">
+            <button id="update-dismiss-btn" class="flex-1 px-3 py-2 text-xs font-medium text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+                Depois
+            </button>
+            <button id="update-now-btn" class="flex-1 px-3 py-2 text-xs font-medium bg-primary text-white hover:bg-pink-700 rounded-lg transition-colors">
+                Atualizar agora
+            </button>
+        </div>
+    </div>
+
+    <!-- Service Worker Registration com detecção de atualização -->
     <script>
+        let newWorker;
+        
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('service-worker.js')
                     .then((registration) => {
                         console.log('ServiceWorker registrado com sucesso:', registration.scope);
+                        
+                        // Verifica se há uma atualização
+                        registration.addEventListener('updatefound', () => {
+                            newWorker = registration.installing;
+                            
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    // Nova versão disponível - mostra o toast
+                                    showUpdateToast();
+                                }
+                            });
+                        });
                     })
                     .catch((error) => {
                         console.log('Falha ao registrar ServiceWorker:', error);
                     });
+                    
+                // Recarrega quando o novo SW assumir o controle
+                let refreshing = false;
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    if (!refreshing) {
+                        refreshing = true;
+                        window.location.reload();
+                    }
+                });
             });
         }
+        
+        function showUpdateToast() {
+            const toast = document.getElementById('update-toast');
+            toast.style.display = 'block';
+            
+            // Força reflow para a animação funcionar
+            toast.offsetHeight;
+            
+            toast.classList.remove('translate-y-full', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+        }
+        
+        function hideUpdateToast() {
+            const toast = document.getElementById('update-toast');
+            toast.classList.remove('translate-y-0', 'opacity-100');
+            toast.classList.add('translate-y-full', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 300);
+        }
+        
+        // Botão "Atualizar agora"
+        document.getElementById('update-now-btn').addEventListener('click', () => {
+            if (newWorker) {
+                newWorker.postMessage({ type: 'SKIP_WAITING' });
+            }
+        });
+        
+        // Botão "Depois"
+        document.getElementById('update-dismiss-btn').addEventListener('click', () => {
+            hideUpdateToast();
+        });
     </script>
 </body>
 </html>

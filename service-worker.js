@@ -1,4 +1,4 @@
-const CACHE_NAME = 'myfinance-v2';
+const CACHE_NAME = 'myfinance-v3';
 const urlsToCache = [
   './',
   './index.html',
@@ -32,8 +32,7 @@ self.addEventListener('install', (event) => {
         console.log('Erro ao cachear:', error);
       })
   );
-  // Ativa imediatamente sem esperar
-  self.skipWaiting();
+  // NÃO ativa imediatamente - espera o usuário aceitar
 });
 
 // Ativação - limpa caches antigos
@@ -87,7 +86,7 @@ self.addEventListener('fetch', (event) => {
 
 // Escuta mensagens para atualizar o cache
 self.addEventListener('message', (event) => {
-  if (event.data === 'skipWaiting') {
+  if (event.data === 'skipWaiting' || event.data?.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
 });

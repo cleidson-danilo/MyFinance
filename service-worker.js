@@ -1,17 +1,17 @@
 const CACHE_NAME = 'myfinance-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/paginas/transacoes.html',
-  '/paginas/cartoes.html',
-  '/paginas/planejamento.html',
-  '/paginas/relatorios.html',
-  '/css/style.css',
-  '/js/app.js',
-  '/js/config.js',
-  '/js/reports.js',
-  '/js/relatorios.js',
-  '/js/vendor/chart.umd.min.js',
+  './',
+  './index.html',
+  './paginas/transacoes.html',
+  './paginas/cartoes.html',
+  './paginas/planejamento.html',
+  './paginas/relatorios.html',
+  './css/style.css',
+  './js/app.js',
+  './js/config.js',
+  './js/reports.js',
+  './js/relatorios.js',
+  './js/vendor/chart.umd.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'
 ];
 
@@ -73,7 +73,7 @@ self.addEventListener('fetch', (event) => {
             }
             // Se não encontrar no cache, retorna página offline (opcional)
             if (event.request.mode === 'navigate') {
-              return caches.match('/index.html');
+              return caches.match('./index.html');
             }
           });
       })

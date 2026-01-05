@@ -1,6 +1,7 @@
 // Gerenciamento de Configurações Globais
 // Aplicar configurações imediatamente antes do DOM carregar
 const CONFIG_STORAGE_KEY = 'appConfig';
+const AVATAR_STORAGE_KEY = 'userAvatar';
 const DEFAULT_CONFIG = {
     userName: 'Usuário',
     primaryColor: '#db2777',
@@ -207,6 +208,15 @@ const applyThemeSync = (mode) => {
             .dark tr:hover {
                 background-color: rgba(30, 41, 59, 0.3) !important;
             }
+
+            /* Botão escolher foto dark mode */
+            .dark .bg-gray-100.hover\\:bg-gray-200 {
+                background-color: #374151 !important;
+                color: #e5e7eb !important;
+            }
+            .dark .bg-gray-100.hover\\:bg-gray-200:hover {
+                background-color: #4b5563 !important;
+            }
         `;
         document.head.appendChild(style);
     } else {
@@ -230,6 +240,38 @@ document.addEventListener('DOMContentLoaded', () => {
         applyConfig(config);
     };
 
+    // --- FUNÇÕES DE AVATAR ---
+    const getAvatar = () => {
+        return localStorage.getItem(AVATAR_STORAGE_KEY);
+    };
+
+    const saveAvatar = (base64) => {
+        if (base64) {
+            localStorage.setItem(AVATAR_STORAGE_KEY, base64);
+        } else {
+            localStorage.removeItem(AVATAR_STORAGE_KEY);
+        }
+        applyAvatar(base64);
+    };
+
+    const applyAvatar = (base64) => {
+        const avatarElements = document.querySelectorAll('#user-avatar, #avatar-preview');
+        avatarElements.forEach(el => {
+            if (base64) {
+                el.innerHTML = `<img src="${base64}" alt="Avatar" class="w-full h-full object-cover">`;
+            } else {
+                const size = el.id === 'avatar-preview' ? 'text-2xl' : '';
+                el.innerHTML = `<i class="fa-solid fa-user text-gray-400 ${size}"></i>`;
+            }
+        });
+        
+        // Mostrar/ocultar botão de remover
+        const removeBtn = document.getElementById('remove-avatar-btn');
+        if (removeBtn) {
+            removeBtn.classList.toggle('hidden', !base64);
+        }
+    };
+
     // --- APLICAR CONFIGURAÇÕES ---
     const applyConfig = (config) => {
         // Atualizar nome do usuário
@@ -243,6 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
+        // Aplicar avatar
+        applyAvatar(getAvatar());
 
         // Atualizar cor primária
         updateTailwindColors(config.primaryColor);
@@ -304,8 +349,54 @@ document.addEventListener('DOMContentLoaded', () => {
         const openConfigBtn = document.getElementById('open-config-btn');
         const closeConfigBtn = document.getElementById('close-config-btn');
         const configForm = document.getElementById('config-form');
+        const avatarInput = document.getElementById('avatar-input');
+        const removeAvatarBtn = document.getElementById('remove-avatar-btn');
 
         if (!configModal || !openConfigBtn) return;
+
+        // --- AVATAR HANDLERS ---
+        if (avatarInput) {
+            avatarInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // Verificar tamanho (max 500KB)
+                    if (file.size > 500 * 1024) {
+                        alert('A imagem deve ter no máximo 500KB');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        // Redimensionar imagem antes de salvar
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const size = 150; // Tamanho final
+                            canvas.width = size;
+                            canvas.height = size;
+                            const ctx = canvas.getContext('2d');
+                            
+                            // Centralizar e cortar
+                            const minDim = Math.min(img.width, img.height);
+                            const sx = (img.width - minDim) / 2;
+                            const sy = (img.height - minDim) / 2;
+                            
+                            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+                            const base64 = canvas.toDataURL('image/jpeg', 0.8);
+                            saveAvatar(base64);
+                        };
+                        img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        if (removeAvatarBtn) {
+            removeAvatarBtn.addEventListener('click', () => {
+                saveAvatar(null);
+            });
+        }
 
         // Abrir modal
         openConfigBtn.addEventListener('click', (e) => {
@@ -325,6 +416,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeLight.checked = mode === 'light';
                 themeDark.checked = mode === 'dark';
             }
+            
+            // Atualizar preview do avatar
+            applyAvatar(getAvatar());
             
             configModal.classList.remove('hidden');
         });

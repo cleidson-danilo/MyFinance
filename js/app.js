@@ -1607,15 +1607,11 @@ document.addEventListener('DOMContentLoaded', () => {
         renderAll();
         
         // Esconde o loading screen após carregar
-        setTimeout(() => {
-            const loadingScreen = document.getElementById('loading-screen');
-            if (loadingScreen) {
-                loadingScreen.classList.add('fade-out');
-                setTimeout(() => {
-                    loadingScreen.remove();
-                }, 300);
-            }
-        }, 500);
+        const loadingScreen = document.getElementById('loading-screen');
+        if (loadingScreen) {
+            loadingScreen.classList.add('fade-out');
+            setTimeout(() => loadingScreen.remove(), 200);
+        }
     };
 
     // Inicializar o app

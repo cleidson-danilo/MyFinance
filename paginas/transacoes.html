@@ -50,9 +50,11 @@
             justify-content: center;
             align-items: center;
             z-index: 9999;
+            opacity: 0;
+            animation: showLoading 0s 0.3s forwards;
             transition: opacity 0.2s;
         }
-        #loading-screen.fade-out { opacity: 0; pointer-events: none; }
+        #loading-screen.fade-out { animation: none; opacity: 0; pointer-events: none; }
         .spinner {
             width: 40px;
             height: 40px;
@@ -66,6 +68,7 @@
             border-top-color: #db2777;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes showLoading { to { opacity: 1; } }
     </style>
 </head>
 <body class="bg-gray-50 text-slate-800 font-sans antialiased">
